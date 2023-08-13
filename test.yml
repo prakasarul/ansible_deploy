@@ -5,6 +5,10 @@
   tasks:
     - debug:
         msg: "Good luck! :)"
+    - name: install ansible collection
+      shell: |
+           ansible-galaxy collection install community.general
+
     - name: getting hostname
       ansible.builtin.command: hostname
       register: host_name 
