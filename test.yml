@@ -55,3 +55,12 @@
          section: network
          option: hostname
          value: "{{host_name.stdout}}" 
+    
+    - name: Setting host facts using complex arguments
+      ansible.builtin.set_fact:
+         md5hash: "{{ {{host_name.stdout}} | md5 }}"
+    
+    - name: md5hash
+      debug: 
+        msg: "{{md5hash}}"
+    
