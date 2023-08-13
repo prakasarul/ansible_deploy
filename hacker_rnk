@@ -1,0 +1,11 @@
+---
+- hosts: localhost
+  become: true
+  tasks:
+    - name: Copy file with owner and permissions
+      ansible.builtin.copy:
+        src: https://raw.githubusercontent.com/ProblemSetters/devops-inventory/1306065-ansible/config.ini
+        dest: "{{ lookup('env', 'HACKERBOARD_DIR') }}/config.ini"
+        owner: hackerboard
+        group: hackercompany
+        mode: '0644'

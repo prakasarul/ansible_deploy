@@ -1,0 +1,57 @@
+---
+- hosts: localhost
+  become: true
+  gather_facts: yes
+  tasks:
+    - debug:
+        msg: "Good luck! :)"
+    - name: getting hostname
+      ansible.builtin.command: hostname
+      register: host_name 
+
+    - name: What is my ansible_hostname
+      debug: 
+        msg: "{{host_name.stdout}}"
+
+    - name: Setting host facts using complex arguments
+      ansible.builtin.set_fact:
+        instance_id: "{{ lookup('env', 'AWS_INSTANCE_ID') }}"
+    - name: Create group
+      group:
+        name: hackercompany
+        state: present
+
+    - name: Create Users Task
+      user:
+        name: hackerboard
+        state: present
+    - name: download foo.conf
+      get_url:
+        url: https://raw.githubusercontent.com/ProblemSetters/devops-inventory/1306065-ansible/config.ini
+        dest: /tmp/
+        mode: '0644'
+    - name: Copy file with owner and permissions
+      ansible.builtin.copy:
+        src: /tmp/config.ini
+        dest: "{{ lookup('env', 'HACKERBOARD_DIR') }}/config.ini"
+        owner: hackerboard
+        group: hackercompany
+        mode: 0644
+
+    - name: Templating
+      template:
+         src: /tmp/config.ini
+         dest: "{{ lookup('env', 'HACKERBOARD_DIR') }}/config.ini"
+    - name: Ensure "mode=debug is in section "[global]" in specified file
+      community.general.ini_file:
+         path: "{{ lookup('env', 'HACKERBOARD_DIR') }}/config.ini"
+         section: global
+         option: mode
+         value: debug
+
+    - name: Ensure "hostname=host_name is in section "[network]" in specified file
+      community.general.ini_file:
+         path: "{{ lookup('env', 'HACKERBOARD_DIR') }}/config.ini"
+         section: network
+         option: hostname
+         value: "{{host_name.stdout}}" 
