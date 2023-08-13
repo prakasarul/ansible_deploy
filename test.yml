@@ -9,10 +9,6 @@
       ansible.builtin.command: hostname
       register: host_name 
 
-    - name: What is my ansible_hostname
-      debug: 
-        msg: "{{host_name.stdout}}"
-
     - name: Setting host facts using complex arguments
       ansible.builtin.set_fact:
         instance_id: "{{ lookup('env', 'AWS_INSTANCE_ID') }}"
@@ -21,15 +17,17 @@
         name: hackercompany
         state: present
 
-    - name: Create Users Task
+    - name: Create Users
       user:
         name: hackerboard
         state: present
-    - name: download foo.conf
+
+    - name: Download template config file
       get_url:
         url: https://raw.githubusercontent.com/ProblemSetters/devops-inventory/1306065-ansible/config.ini
         dest: /tmp/
         mode: '0644'
+
     - name: Copy file with owner and permissions
       ansible.builtin.copy:
         src: /tmp/config.ini
@@ -42,6 +40,7 @@
       template:
          src: /tmp/config.ini
          dest: "{{ lookup('env', 'HACKERBOARD_DIR') }}/config.ini"
+
     - name: Ensure "mode=debug is in section "[global]" in specified file
       community.general.ini_file:
          path: "{{ lookup('env', 'HACKERBOARD_DIR') }}/config.ini"
@@ -67,3 +66,10 @@
          option: fingerprint
          value: "{{md5hash}}"
     
+    - name: Remove replica entries
+      community.general.ini_file:
+         path: "{{ lookup('env', 'HACKERBOARD_DIR') }}/config.ini"
+         section: replica
+         option: is_primary
+         value: true   
+         state: remove
