@@ -72,4 +72,4 @@
          section: replica
          option: is_primary
          value: true   
-         state: remove
+         state: absent 
